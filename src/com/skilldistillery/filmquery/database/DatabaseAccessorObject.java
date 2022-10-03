@@ -24,41 +24,17 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		}
 	}
 	
-	public Map<Integer, String> findLang(){
-		Map<Integer, String> returnMap = new HashMap<>();
-		String user = "student";
-		String pass = "student";
-		Connection conn;
-		try {
-			conn = DriverManager.getConnection(URL, user, pass);
-			String sql = "SELECT * FROM language";
-			PreparedStatement stmt = conn.prepareStatement(sql);
-
-			ResultSet filmResultSet = stmt.executeQuery();
-			
-			while(filmResultSet.next()) {
-				Integer key = filmResultSet.getInt("id");
-				String value  = filmResultSet.getString("name");
-				returnMap.put(key, value);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return returnMap;
-	
-		
-	}
-	
 	@Override
 	public List<Film> findFilmByKeyword (String keyword) throws SQLException {
-		List<Actor> actors = new ArrayList<Actor>();
 		List<Film> films = new ArrayList<Film>();
 		Film film = null;
 		String user = "student";
 		String pass = "student";
 		Connection conn = DriverManager.getConnection(URL, user, pass);
-		String sql = "SELECT * FROM film WHERE description LIKE ?"
-				+ "OR title LIKE ?";
+		String sql = "SELECT film.id, title, description, release_year, language_id, rental_duration,"
+				+ "rental_rate, length, replacement_cost, rating, special_features, language.name FROM film "
+				+ "JOIN language ON film.language_id = language.id WHERE film.description LIKE ?"
+				+ "OR film.title LIKE ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		stmt.setString(1, "%" + keyword + "%");
@@ -66,12 +42,12 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 
 		ResultSet filmResult = stmt.executeQuery();
 		while(filmResult.next()) {
-			film = new Film(actors, filmResult.getInt("id"), filmResult.getString("title"),
+			film = new Film(findActorsByFilmId(filmResult.getInt("film.id")), filmResult.getInt("film.id"), filmResult.getString("title"),
 					filmResult.getString("description"), filmResult.getInt("release_year"),
 					filmResult.getInt("language_id"), filmResult.getInt("rental_duration"),
 					filmResult.getDouble("rental_rate"), filmResult.getInt("length"),
 					filmResult.getDouble("replacement_cost"), filmResult.getString("rating"),
-					filmResult.getString("special_features"));
+					filmResult.getString("special_features"), filmResult.getString("language.name"));
 			films.add(film);
 		}
 		filmResult.close();
@@ -82,12 +58,12 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 
 	@Override
 	public Film findFilmById(int filmId) throws SQLException {
-		List<Actor> actors = new ArrayList<Actor>();
 		Film film = null;
 		String user = "student";
 		String pass = "student";
 		Connection conn = DriverManager.getConnection(URL, user, pass);
-		String sql = "SELECT * FROM film WHERE id = ?";
+		String sql = "SELECT film.id, title, description, release_year, language_id, rental_duration, "
+			+ "rental_rate, length, replacement_cost, rating, special_features, language.name FROM film JOIN language ON film.language_id = language.id WHERE film.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 
 		stmt.setInt(1, filmId);
@@ -95,12 +71,13 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		ResultSet filmResult = stmt.executeQuery();
 
 		while (filmResult.next()) {
-			film = new Film(actors, filmResult.getInt("id"), filmResult.getString("title"),
+			film = new Film(findActorsByFilmId(filmResult.getInt("film.id")), filmResult.getInt("film.id"), filmResult.getString("title"),
 					filmResult.getString("description"), filmResult.getInt("release_year"),
 					filmResult.getInt("language_id"), filmResult.getInt("rental_duration"),
 					filmResult.getDouble("rental_rate"), filmResult.getInt("length"),
 					filmResult.getDouble("replacement_cost"), filmResult.getString("rating"),
-					filmResult.getString("special_features"));
+					filmResult.getString("special_features"), filmResult.getString("language.name"));
+		
 		}
 		filmResult.close();
 		stmt.close();
@@ -136,12 +113,10 @@ public class DatabaseAccessorObject implements DatabaseAccessor {
 		String user = "student";
 		String pass = "student";
 		Connection conn = DriverManager.getConnection(URL, user, pass);
-//		String sql = "SELECT * FROM actor JOIN film_actor ON actor_id = actor.id JOIN film ON film_id = ?";
+		
 		String sql = "SELECT act.* FROM film JOIN film_actor fa ON film.id = fa.film_id JOIN actor act ON fa.actor_id = act.id WHERE film.id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
-
 		stmt.setInt(1, filmId);
-
 		ResultSet filmResult = stmt.executeQuery();
 
 		while (filmResult.next()) {

@@ -7,7 +7,8 @@ public class Actor {
 	private String firstName;
 	private String lastName;
 
-	public Actor() {}
+	public Actor() {
+	}
 
 	public Actor(int id, String fn, String ln) {
 		this.id = id;
