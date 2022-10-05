@@ -17,11 +17,11 @@ public class FilmQueryApp {
 		app.launch();
 	}
 
-//	private void listOfActors(List<Actor> actors) {
-//		for (Actor actor : actors) {
-//			System.out.println(actor.getFirstName() + " " + actor.getLastName());
-//		}
-//	}
+	private void listOfActors(List<Actor> actors) {
+		for (Actor actor : actors) {
+			System.out.println(actor.getFirstName() + " " + actor.getLastName());
+		}
+	}
 
 	private void displayFilm(Film film) {
 		System.out.println("Title: " + film.getTitle() + " Description: " + film.getDescription() + " Year Released: "
@@ -35,7 +35,7 @@ public class FilmQueryApp {
 			System.out.println("Title: " + film.getTitle() + " Description: " + film.getDescription()
 					+ " Year Released: " + film.getReleaseYear() + " Runtime: " + film.getLength() + " Rating: "
 					+ film.getRating() + " Language " + film.getLangName());
-//			listOfActors(film.getActors());
+			listOfActors(film.getActors());
 		}
 
 	}
@@ -63,12 +63,17 @@ public class FilmQueryApp {
 				System.out.println("Enter the ID of the film you would like to look up");
 				int userChoice1 = input.nextInt();
 				try {
-					film = db.findFilmById(userChoice1);
+					if (userChoice1 > 1000 || userChoice1 < 1) {
+						System.out.println("invalid entry");
+						continue;
+					} else {
+						film = db.findFilmById(userChoice1);
 //					List<Actor> actors;
 //					actors = db.findActorsByFilmId(userChoice1);
 //					listOfActors(actors);
-					displayFilm(film);
-					continue;
+						displayFilm(film);
+						continue;
+					}
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 
@@ -78,13 +83,12 @@ public class FilmQueryApp {
 				System.out.println("Enter the keyword");
 				String userChoice2 = input.next();
 				try {
-					
+
 					films = db.findFilmByKeyword(userChoice2);
-					if(films.size() == 0) {
+					if (films.size() == 0) {
 						System.out.println("No films found");
-					}
-					else {
-					displayMultiplefilms(films);
+					} else {
+						displayMultiplefilms(films);
 					}
 					continue;
 				} catch (SQLException e) {
@@ -96,8 +100,7 @@ public class FilmQueryApp {
 				System.out.println("Goodbye");
 				run = false;
 
-			}
-			else {
+			} else {
 				System.out.println("invalid entry");
 				continue;
 			}
